@@ -46,6 +46,10 @@ BASENAME=$(basename "$FILTERBANK_FILE" .fil)
 # Convert microseconds (us) to seconds (s) for DDplan.py's -t flag
 SAMPLE_TIME_S=$(echo "scale=8; $SAMPLE_TIME_US / 1000000" | bc)
 
+#DM vlaues (change as needed)
+
+dm_low=0.0
+dm_high=500.0
 
 #====== change parameters as needed ==========
 
@@ -54,8 +58,8 @@ DDPLAN_ARGS=(
   # Set output filename without .fil extension
   "-o" "${BASENAME}"
   # Low DM (0) and High DM (500)
-  "-l" "0.0"
-  "-d" "500.0"
+  "-l" "${dm_low}"
+  "-d" "${dm_high}"
   # Extracted values
   "-f" "${CENTRAL_FREQ}"
   "-b" "${BANDWIDTH}"
@@ -83,7 +87,7 @@ fi
 
 # EXTRACT AND SAVE DDplan OUTPUT
 
-OUTPUT_FILE="${BASENAME}_parameters.txt"
+OUTPUT_FILE="${BASENAME}_parameters.params"
 echo "Saving output to ${OUTPUT_FILE}"
 
 echo "$DDPLAN_OUTPUT" | \
