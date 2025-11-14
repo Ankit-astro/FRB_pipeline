@@ -104,7 +104,7 @@ def main():
             f, index=False, header=False, float_format="%.8f"
         )
 
-    print(f"Saved cleaned candidates to: {output_file}")
+    print(f"Saved candidates to: {output_file}")
 
 
 if __name__ == "__main__":
