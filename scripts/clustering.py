@@ -40,6 +40,13 @@ def main():
         help="min_samples parameter for HDBSCAN (default: None)."
     )
 
+    parser.add_argument(
+        "--snr",
+        type=float,
+        default=6,
+        help="snr threshold value"
+    )
+
     args = parser.parse_args()
     path = os.path.join(args.single_path, "")
 
@@ -90,6 +97,7 @@ def main():
     # Keep highest-SNR candidate from each cluster
     idx = df_clusters.groupby("cluster")["Sigma"].idxmax()
     df_best = df_clusters.loc[idx].reset_index(drop=True)
+    df_best = df_best[df_best["Sigma"] > args.snr]
 
     #print(f"Candidates selected (one per cluster): {len(df_best)}")
 
