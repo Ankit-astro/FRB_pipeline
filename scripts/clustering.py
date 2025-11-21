@@ -6,6 +6,26 @@ import argparse
 from sklearn.preprocessing import StandardScaler
 import os
 
+def DM_delay(DM, f1, BW):
+    """
+    Calculate the dispersion delay in milliseconds between two frequencies.
+    
+    Parameters:
+    DM : float
+        Dispersion Measure in pc cm^-3
+    f1 : float
+        Lower frequency in MHz
+    BW : float
+        Bandwidth in MHz
+    
+    Returns:
+    float
+        Dispersion delay in seconds
+    """
+    f2 = f1 + BW
+    delay_s = 4.15e3 * DM * (f1**-2 - f2**-2)  # Convert to seconds
+    return delay_s
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -47,6 +67,20 @@ def main():
         help="snr threshold value"
     )
 
+    parser.add_argument(
+        "-f_low", "--frequency_low",
+        type=float,
+        default=550.0,
+        help="Lower frequency in MHz (default: 550.0 MHz)."
+    )
+
+    parser.add_argument(
+        "-bw", "--bandwidth",
+        type=float,
+        default=200.0,
+        help="Bandwidth in MHz (default: 200.0 MHz)."
+    )
+
     args = parser.parse_args()
     path = os.path.join(args.single_path, "")
 
@@ -70,9 +104,16 @@ def main():
     df_all = pd.concat(dfs, ignore_index=True)
     print(f"Total candidates: {len(df_all)}")
 
+    # Filter by SNR
+    df_all = df_all[df_all["Sigma"] > args.snr] 
+    print(f"Candidates after SNR > {args.snr} filter: {len(df_all)}")   
+
+    # Calculate dispersion delay
+    df_all["Delay_s"] = DM_delay(df_all["DM"], args.frequency_low, args.bandwidth)
     # Scale features
-    X = df_all[["DM", "Time"]]
-    X_scaled = StandardScaler().fit_transform(X)
+
+    X = df_all[["Delay_s", "Time"]]
+    #X_scaled = StandardScaler().fit_transform(X)
 
     # HDBSCAN clustering
     clusterer = hdbscan.HDBSCAN(
@@ -80,7 +121,7 @@ def main():
         min_samples=args.min_samples
     )
 
-    labels = clusterer.fit_predict(X_scaled)
+    labels = clusterer.fit_predict(X)
     df_all["cluster"] = labels
 
     # Summary
