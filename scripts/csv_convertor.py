@@ -51,7 +51,7 @@ def main():
         stime = info_df.iloc[:, 2].values
         width_time = info_df.iloc[:, 3].values
         width_in_samp = info_df.iloc[:, 4].values
-        label = np.zeros(len(DM)) # Placeholder for label column
+        label = np.zeros(len(DM), dtype=int) # Placeholder for label column
         chan_mask_path = args.channel_mask 
         # Process .fil file
         your_object = your.Your(fil_file)
