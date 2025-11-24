@@ -11,7 +11,6 @@ def main():
     parser.add_argument("-f", "--fil_file", required=True, nargs='+', help="Paths to input filterbank files")
     parser.add_argument("-i", "--info_file", required=True, nargs='+', help="Paths to .injinf or .singlepulse files")
     parser.add_argument("-o", "--output_dir", required=True, help="Directory to save output CSV file")
-    parser.add_argument("-s", "--singlepulse", action='store_true', help="if 4th index contain width in sample, i.e. .singlepulse files from PRESTO")
     parser.add_argument("-cm","--channel_mask", type=str, default=None, help="if you have channel mask files corresponding to filterbank files")
 
     args = parser.parse_args()
@@ -21,6 +20,12 @@ def main():
     info_files = [os.path.abspath(f) for f in args.info_file]
     output_dir = os.path.abspath(args.output_dir)
 
+    #checking input file extension
+    name, extantion = os.path.splitext(os.path.basename(info_files[0]))
+    if extantion not in ['.injinf', '.singlepulse']:
+        raise ValueError("Info files must have .injinf or .singlepulse extension.")
+    
+    
     # Sanity check
     if len(fil_files) != len(info_files):
         raise ValueError("Number of .fil and .injinf files must be equal.")
@@ -59,11 +64,12 @@ def main():
         width_samp = (width_time / tsamp) #converting sample width from sec to samples 
         
 
-        # Create DataFrame
-        if args.singlepulse :
-            width  = np.array([int(np.log2(i)) for i in width_in_samp])
-        else :
+
+        if extantion == '.injinf':
             width = np.array([int(np.log2(i)) for i in width_samp])
+        else:
+            width = np.array([int(np.log2(i)) for i in width_in_samp])
+
             
         df = pd.DataFrame({
             "file": [fil_file] * len(DM),
