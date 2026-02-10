@@ -43,7 +43,7 @@ def main():
         "-o", "--output",
         type=str,
         default="clustered.singlepulse",
-        help="Output .singlepulse file name (default: clustered.singlepulse)."
+        help="Outputs a .singlepulse file with Highest SNR candidate from each cluster (default: clustered.singlepulse)."
     )
 
     parser.add_argument(
@@ -81,6 +81,12 @@ def main():
         help="Bandwidth in MHz (default: 200.0 MHz)."
     )
 
+    parser.add_argument(
+        "--store_all",
+        action="store_true",
+        help="Store all candidates with their cluster labels in an output file (default: only highest SNR per cluster)."
+    )
+
     args = parser.parse_args()
     path = os.path.join(args.single_path, "")
 
@@ -105,15 +111,13 @@ def main():
     print(f"Total candidates: {len(df_all)}")
 
     # Filter by SNR
-    df_all = df_all[df_all["Sigma"] > args.snr] 
-    print(f"Candidates after SNR > {args.snr} filter: {len(df_all)}")   
+    #df_all = df_all[df_all["Sigma"] > args.snr] 
+    #print(f"Candidates after SNR > {args.snr} filter: {len(df_all)}")   
 
     # Calculate dispersion delay
     df_all["Delay_s"] = DM_delay(df_all["DM"], args.frequency_low, args.bandwidth)
-    # Scale features
-
+   
     X = df_all[["Delay_s", "Time"]]
-    #X_scaled = StandardScaler().fit_transform(X)
 
     # HDBSCAN clustering
     clusterer = hdbscan.HDBSCAN(
@@ -132,6 +136,10 @@ def main():
         print("No clusters found. Exiting.")
         return
 
+    if args.store_all:
+        df_all.to_csv("all_candidates_with_clusters.csv", index=False)
+        print("Saved all candidates with cluster labels to: all_candidates_with_clusters.csv")
+    
     # Filter out noise (-1)
     df_clusters = df_all[df_all["cluster"] != -1]
 
