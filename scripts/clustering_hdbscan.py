@@ -3,28 +3,9 @@ import pandas as pd
 import hdbscan
 import glob
 import argparse
-from sklearn.preprocessing import StandardScaler
 import os
-
-def DM_delay(DM, f1, BW):
-    """
-    Calculate the dispersion delay in milliseconds between two frequencies.
-    
-    Parameters:
-    DM : float
-        Dispersion Measure in pc cm^-3
-    f1 : float
-        Lower frequency in MHz
-    BW : float
-        Bandwidth in MHz
-    
-    Returns:
-    float
-        Dispersion delay in seconds
-    """
-    f2 = f1 + BW
-    delay_s = 4.15e3 * DM * (f1**-2 - f2**-2)  # Convert to seconds
-    return delay_s
+from frbfunction.io import DM_delay, load_singlepulse
+from frbfunction.clustring import HDBSCAN_clustering
 
 
 def main():
@@ -42,7 +23,7 @@ def main():
     parser.add_argument(
         "-o", "--output",
         type=str,
-        default="clustered.singlepulse",
+        default="clustered_candidates.singlepulse",
         help="Outputs a .singlepulse file with Highest SNR candidate from each cluster (default: clustered.singlepulse)."
     )
 
@@ -88,57 +69,25 @@ def main():
     )
 
     args = parser.parse_args()
-    path = os.path.join(args.single_path, "")
 
-    # Find .singlepulse files
-    files = glob.glob(path + "*.singlepulse")
-    if not files:
-        print(f"No .singlepulse files found in: {path}")
-        return
-
-    print(f"Found {len(files)} .singlepulse files.")
-
-    # Load files
-    dfs = []
-    for f in files:
-        df = pd.read_csv(
-            f, sep=r"\s+", comment="#",
-            names=["DM", "Sigma", "Time", "Sample", "Downfact"]
-        )
-        dfs.append(df)
-
-    df_all = pd.concat(dfs, ignore_index=True)
+    df_all = load_singlepulse(args.single_path, verbose=True)
     print(f"Total candidates: {len(df_all)}")
-
-    # Filter by SNR
-    #df_all = df_all[df_all["Sigma"] > args.snr] 
-    #print(f"Candidates after SNR > {args.snr} filter: {len(df_all)}")   
-
+  
     # Calculate dispersion delay
     df_all["Delay_s"] = DM_delay(df_all["DM"], args.frequency_low, args.bandwidth)
    
-    X = df_all[["Delay_s", "Time"]]
-
-    # HDBSCAN clustering
-    clusterer = hdbscan.HDBSCAN(
+    # Perform HDBSCAN clustering
+    df_all = HDBSCAN_clustering(
+        df_all,
+        cluster_column=["Delay_s", "Time"],
         min_cluster_size=args.min_cluster_size,
-        min_samples=args.min_samples
+        min_samples=args.min_samples,
+        verbose=True
     )
 
-    labels = clusterer.fit_predict(X)
-    df_all["cluster"] = labels
-
-    # Summary
-    n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
-    print(f"Clusters found (excluding noise): {n_clusters}")
-
-    if n_clusters == 0:
-        print("No clusters found. Exiting.")
-        return
-
     if args.store_all:
-        df_all.to_csv("all_candidates_with_clusters.csv", index=False)
-        print("Saved all candidates with cluster labels to: all_candidates_with_clusters.csv")
+        df_all.to_csv(f"all_candidates_with_clusters_min_cluster_size{args.min_cluster_size}_min_samples{args.min_samples}.csv", index=False)
+        print(f"Saved all candidates with cluster labels to: all_candidates_with_clusters_min_cluster_size{args.min_cluster_size}_min_samples{args.min_samples}.csv")
     
     # Filter out noise (-1)
     df_clusters = df_all[df_all["cluster"] != -1]
@@ -148,7 +97,9 @@ def main():
     df_best = df_clusters.loc[idx].reset_index(drop=True)
     df_best = df_best[df_best["Sigma"] > args.snr]
 
-    #print(f"Candidates selected (one per cluster): {len(df_best)}")
+    # Filter by SNR
+    df_best = df_best[df_best["Sigma"] > args.snr] 
+    print(f"Candidates after SNR > {args.snr} filter: {len(df_best)}") 
 
     # Save output file
     output_file = args.output
@@ -166,3 +117,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("Clustering completed successfully.")
