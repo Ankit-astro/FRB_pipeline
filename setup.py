@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="frbfunction",
+    name="cluster_tools",
     version="0.1.0",
     package_dir={"": "src"},
     packages=find_packages("src"),
@@ -14,10 +14,10 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "cluster_dbscan = frbfunction.cli.clustering_dbscan:main",
-            "cluster_hdbscan = frbfunction.cli.clustering_hdbscan:main",
-            "csv_convert = frbfunction.cli.csv_convertor:main",
-            "dedisperse = frbfunction.cli.DDplan_dedisperse:main",
+            "cluster_dbscan = cluster_tools.cli.clustering_dbscan:main",
+            "cluster_hdbscan = cluster_tools.cli.clustering_hdbscan:main",
+            "csv_convert = cluster_tools.cli.csv_convertor:main",
+            "dedisperse = cluster_tools.cli.DDplan_dedisperse:main",
         ]
     },
 )

@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: cluster_tools
+Version: 0.1.0
+Summary: FRB search and classification pipeline
+Requires-Python: >=3.8
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: scikit-learn
+Requires-Dist: hdbscan
+Requires-Dist: your

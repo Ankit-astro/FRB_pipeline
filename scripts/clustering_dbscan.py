@@ -2,8 +2,8 @@
 import pandas as pd
 import argparse
 import os
-from frbfunction.io import DM_delay, load_singlepulse
-from frbfunction.clustering import DBSCAN_clustering
+from cluster_tools.io import DM_delay, load_singlepulse
+from cluster_tools.clustering import DBSCAN_clustering
 
 def main():
     parser = argparse.ArgumentParser(
