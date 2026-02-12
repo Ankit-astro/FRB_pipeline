@@ -51,6 +51,13 @@ def main():
         default=550.0,
         help="Lower frequency in MHz (default: 550.0 MHz)."
     )
+    
+    parser.add_argument(
+        "-dm", "--dm_threshold",
+        type=float,
+        default=10.0,
+        help="Minimum DM threshold for candidates to be included in clustering (default: 10.0 pc/cm^3)."
+    )
 
     parser.add_argument(
         "-bw", "--bandwidth",
@@ -73,6 +80,10 @@ def main():
     # Calculate dispersion delay
     df_all["Delay_s"] = DM_delay(df_all["DM"], args.frequency_low, args.bandwidth)
 
+    # Filtring candidates 
+    df_all = df_all[df_all["DM"] > args.dm_threshold]
+    print(f"Candidates after DM > {args.dm_threshold} filter: {len(df_all)}")
+    
     # DBSCAN clustering
     df_all = DBSCAN_clustering(
         df_all,
