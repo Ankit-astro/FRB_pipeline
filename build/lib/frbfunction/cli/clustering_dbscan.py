@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 import pandas as pd
+from sklearn.cluster import DBSCAN
+import glob
 import argparse
 import os
 from frbfunction.io import DM_delay, load_singlepulse
-from frbfunction.clustering import HDBSCAN_clustering
-
+from frbfunction.clustering import DBSCAN_clustering
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Clustering single-pulse candidates using HDBSCAN.."
+        description="Clustering single-pulse candidates using DBSCAN.."
     )
 
     parser.add_argument(
@@ -26,17 +27,17 @@ def main():
     )
 
     parser.add_argument(
-        "--min_cluster_size",
-        type=int,
-        default=5,
-        help="Minimum cluster size for HDBSCAN (default: 5)."
+        "-e","--eps",
+        type=float,
+        default=0.05,
+        help="eps parameter for DBSCAN (default: 0.05)."
     )
 
     parser.add_argument(
         "--min_samples",
         type=int,
-        default=None,
-        help="min_samples parameter for HDBSCAN (default: None)."
+        default=5,
+        help="min_samples parameter for DBSCAN (default: 5)."
     )
 
     parser.add_argument(
@@ -74,18 +75,20 @@ def main():
     # Calculate dispersion delay
     df_all["Delay_s"] = DM_delay(df_all["DM"], args.frequency_low, args.bandwidth)
    
-    # Perform HDBSCAN clustering
-    df_all = HDBSCAN_clustering(
+    X = df_all[["Delay_s", "Time"]]
+
+    # DBSCAN clustering
+    df_all = DBSCAN_clustering(
         df_all,
         cluster_column=["Delay_s", "Time"],
-        min_cluster_size=args.min_cluster_size,
+        eps=args.eps,
         min_samples=args.min_samples,
         verbose=True
     )
 
     if args.store_all:
-        df_all.to_csv(f"all_candidates_with_clusters_min_cluster_size{args.min_cluster_size}_min_samples{args.min_samples}.csv", index=False)
-        print(f"Saved all candidates with cluster labels to: all_candidates_with_clusters_min_cluster_size{args.min_cluster_size}_min_samples{args.min_samples}.csv")
+        df_all.to_csv(f"all_candidates_with_clusters_eps{args.eps}_min_samples{args.min_samples}.csv", index=False)
+        print(f"Saved all candidates with cluster labels to: all_candidates_with_clusters_eps{args.eps}_min_samples{args.min_samples}.csv")
     
     # Filter out noise (-1)
     df_clusters = df_all[df_all["cluster"] != -1]
@@ -114,4 +117,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print("Clustering completed successfully.")

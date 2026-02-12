@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools >= 45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "frbfunction"
+version = "0.1.0"
+description = "FRB search and classification pipeline"
+requires-python = ">=3.8"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "hdbscan",
+    "your",
+]
+
+[project.scripts]
+cluster_dbscan = "frbfunction.cli.clustering_dbscan:main"
+cluster_hdbscan = "frbfunction.cli.clustering_hdbscan:main"
+csv_convert = "frbfunction.cli.csv_convertor:main"
+dedisperse = "frbfunction.cli.DDplan_dedisperse:main"

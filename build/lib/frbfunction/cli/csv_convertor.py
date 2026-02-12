@@ -21,8 +21,8 @@ def main():
     output_dir = os.path.abspath(args.output_dir)
 
     #checking input file extension
-    name, extension = os.path.splitext(os.path.basename(info_files[0]))
-    if extension not in ['.injinf', '.singlepulse']:
+    name, extantion = os.path.splitext(os.path.basename(info_files[0]))
+    if extantion not in ['.injinf', '.singlepulse']:
         raise ValueError("Info files must have .injinf or .singlepulse extension.")
     
     
@@ -65,7 +65,7 @@ def main():
         
 
 
-        if extension == '.injinf':
+        if extantion == '.injinf':
             width = np.array([int(np.log2(i)) for i in width_samp])
         else:
             width = np.array([int(np.log2(i)) for i in width_in_samp])

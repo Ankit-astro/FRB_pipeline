@@ -1,0 +1,5 @@
+[console_scripts]
+cluster_dbscan = frbfunction.cli.clustering_dbscan:main
+cluster_hdbscan = frbfunction.cli.clustering_hdbscan:main
+csv_convert = frbfunction.cli.csv_convertor:main
+dedisperse = frbfunction.cli.DDplan_dedisperse:main
