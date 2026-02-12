@@ -5,7 +5,7 @@ import glob
 import argparse
 import os
 from frbfunction.io import DM_delay, load_singlepulse
-from frbfunction.clustring import DBSCAN_clustering
+from frbfunction.clustering import DBSCAN_clustering
 
 def main():
     parser = argparse.ArgumentParser(
@@ -96,7 +96,6 @@ def main():
     # Keep highest-SNR candidate from each cluster
     idx = df_clusters.groupby("cluster")["Sigma"].idxmax()
     df_best = df_clusters.loc[idx].reset_index(drop=True)
-    df_best = df_best[df_best["Sigma"] > args.snr]
 
     # Filter by SNR
     df_best = df_best[df_best["Sigma"] > args.snr] 
