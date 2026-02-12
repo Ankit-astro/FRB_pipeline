@@ -88,7 +88,7 @@ def main():
 
     if args.store_all:
         df_all.to_csv(f"all_candidates_with_clusters_eps{args.eps}_min_samples{args.min_samples}.csv", index=False)
-        print("Saved all candidates with cluster labels to: all_candidates_with_clusters.csv")
+        print(f"Saved all candidates with cluster labels to: all_candidates_with_clusters_eps{args.eps}_min_samples{args.min_samples}.csv")
     
     # Filter out noise (-1)
     df_clusters = df_all[df_all["cluster"] != -1]
