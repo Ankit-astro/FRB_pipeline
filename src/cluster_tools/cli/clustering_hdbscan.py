@@ -22,7 +22,7 @@ def main():
         "-o", "--output",
         type=str,
         default="clustered_candidates.singlepulse",
-        help="Outputs a .singlepulse file with Highest SNR candidate from each cluster (default: clustered.singlepulse)."
+        help="Outputs a .singlepulse file with Highest SNR candidate from each cluster (default: clustered_candidates.singlepulse)."
     )
 
     parser.add_argument(
@@ -82,8 +82,8 @@ def main():
     df_all["Delay_s"] = DM_delay(df_all["DM"], args.frequency_low, args.bandwidth)
    
     # Filter candidates based on DM threshold
-    df_all = df_all[df_all["DM"] > args.dm_threshold]
-    print(f"Candidates after DM > {args.dm_threshold} filter: {len(df_all)}")
+    df_all = df_all[df_all["DM"] >= args.dm_threshold]
+    print(f"Candidates after DM >= {args.dm_threshold} filter: {len(df_all)}")
     
     # Perform HDBSCAN clustering
     df_all = HDBSCAN_clustering(
@@ -109,6 +109,9 @@ def main():
     df_best = df_best[df_best["Sigma"] > args.snr] 
     print(f"Candidates after SNR > {args.snr} filter: {len(df_best)}") 
 
+    # Sort by Time
+    df_best = df_best.sort_values("Time").reset_index(drop=True)
+    
     # Save output file
     output_file = args.output
     if not output_file.endswith(".singlepulse"):

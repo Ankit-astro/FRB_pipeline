@@ -2,8 +2,10 @@ import pandas as pd
 import hdbscan
 from sklearn.cluster import DBSCAN
 
-def DBSCAN_clustering(df, cluster_column =['Delay_s', 'Time'], eps=0.05, min_samples=5, verbose=False):
+def DBSCAN_clustering(df, cluster_column = None, eps=0.05, min_samples=5, verbose=False):
     # Perform DBSCAN clustering on the specified columns of the DataFrame.
+    if cluster_column is None:
+        cluster_column = ['Delay_s', 'Time']
     X = df[cluster_column]
     dbscan = DBSCAN(eps=eps, min_samples=min_samples)
     labels = dbscan.fit_predict(X)
@@ -15,8 +17,10 @@ def DBSCAN_clustering(df, cluster_column =['Delay_s', 'Time'], eps=0.05, min_sam
 
     return result
     
-def HDBSCAN_clustering(df, cluster_column =['Delay_s', 'Time'], min_cluster_size=5, min_samples=None, verbose=False):
+def HDBSCAN_clustering(df, cluster_column = None, min_cluster_size=5, min_samples=None, verbose=False):
     # Perform HDBSCAN clustering on the specified columns of the DataFrame.
+    if cluster_column is None:
+        cluster_column = ['Delay_s', 'Time']
     X = df[cluster_column]
     clusterer = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples)
     labels = clusterer.fit_predict(X)
