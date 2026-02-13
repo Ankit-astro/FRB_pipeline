@@ -41,8 +41,8 @@ This pipeline is a one-stop solution for:
 
 ```bash
 # Clone the repository
-git clone https://github.com/Ankit-astro/FRB_pipeline.git
-cd FRB-pipe
+git clone https://github.com/Ankit-astro/cluster-tools.git
+cd cluster-tools
 
 # Create and activate a virtual environment
 python3 -m venv frb_env
@@ -58,8 +58,8 @@ pip install -e .
 
 ```bash
 # Clone the repository
-git clone https://github.com/Ankit-astro/FRB_pipeline.git
-cd FRB-pipe
+git clone https://github.com/Ankit-astro/cluster-tools.git
+cd cluster-tools
 
 # Create and activate conda environment
 conda create -n frb python=3.10
